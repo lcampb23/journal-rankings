@@ -1,0 +1,32 @@
+require(psych)
+
+#read in the csv file with journal ranking data
+ranking <- read.csv("https://osf.io/zcsyn/?action=download&version=1", stringsAsFactors = FALSE, header = TRUE, na.strings = c("NA",""))
+
+
+#put a few variables from the data set into a new data frame
+#SJR is a measure of "prestige"; H.index is the number of publications in the journal that have been cited X number of times; Cites...Doc...2years. is the standard Impact Factor
+
+attach(ranking)                                                  
+newdata <-  cbind(SJR,H.index,Cites...Doc...2years.,Rindex)       
+newdata.df <- data.frame(newdata)                                
+detach(ranking) 
+
+
+corr.test(newdata.df, use="complete.obs")   #show correlations among variables
+
+#scatterplot of Rindex and Journal IF with regression line
+attach(newdata.df)    
+plot(Rindex, Cites...Doc...2years., main="Scatterplot of Journal Impact Factor and Rindex",    
+     xlab="R index ", ylab="Journal IF ", pch=19, ylim = c(0,8))
+abline(lm(Cites...Doc...2years.~Rindex), col="red") 
+detach(newdata.df)
+
+
+#function to remove na cases from Rindex column
+nomissingRindex <- function(data, desiredCols) {
+  completeVec <- complete.cases(data[, desiredCols])
+  return(data[completeVec, ])
+}
+
+nomissingRindex(newdata.df, "Rindex")
